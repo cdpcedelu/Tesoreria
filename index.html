@@ -1,0 +1,89 @@
+<!doctype html>
+<!-- CDP Tesorería · Club de Profesionales · Versión: 2026-09-24 18:12 ARG -->
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#294394">
+  <title>Tesorería CDP</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+  <script>
+    try { var t = localStorage.getItem('cdp-tema'); if (t === 'claro' || t === 'oscuro') document.documentElement.dataset.tema = t; } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <section id="login" class="login" hidden>
+    <form id="login-form" class="login-card" autocomplete="on">
+      <div class="login-marca">
+        <img class="logo-claro" src="logo-cdp.png" alt="CDP">
+        <img class="logo-oscuro" src="logo-cdp-oscuro.png" alt="CDP">
+        <div>
+          <h1>Tesorería</h1>
+          <p id="login-club"></p>
+        </div>
+      </div>
+      <label>Usuario
+        <input name="usuario" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+      </label>
+      <label>Contraseña
+        <input name="clave" type="password" autocomplete="current-password" required>
+      </label>
+      <p id="login-error" class="error" role="alert" hidden></p>
+      <button type="submit" class="btn primario ancho">Ingresar</button>
+    </form>
+    <div class="tema" data-tema-selector role="group" aria-label="Apariencia"></div>
+  </section>
+
+  <div id="app" class="app" hidden>
+    <aside class="nav">
+      <div class="nav-marca">
+        <img class="logo-claro" src="logo-cdp.png" alt="CDP">
+        <img class="logo-oscuro" src="logo-cdp-oscuro.png" alt="CDP">
+        <div>
+          <strong>Tesorería</strong>
+          <span id="nav-club"></span>
+        </div>
+      </div>
+      <nav id="menu" aria-label="Secciones">
+        <a href="#inicio" data-ruta="inicio">Inicio</a>
+        <a href="#movimientos" data-ruta="movimientos">Movimientos</a>
+        <a href="#planilla" data-ruta="planilla" data-roles="admin,tesorero,carga">Cargar planilla</a>
+        <a href="#reportes" data-ruta="reportes">Reportes</a>
+        <a href="#config" data-ruta="config" data-roles="admin,tesorero">Configuración</a>
+        <a href="#auditoria" data-ruta="auditoria" data-roles="admin,tesorero">Historial de cambios</a>
+      </nav>
+      <div class="nav-pie">
+        <div class="tema" data-tema-selector role="group" aria-label="Apariencia"></div>
+        <div class="nav-usuario">
+          <div>
+            <strong id="usr-nombre"></strong>
+            <span id="usr-rol"></span>
+          </div>
+          <button class="btn texto tema-movil" data-tema-ciclo aria-label="Cambiar apariencia">Tema</button>
+          <button id="btn-salir" class="btn texto">Salir</button>
+        </div>
+      </div>
+    </aside>
+    <main id="vista" tabindex="-1"></main>
+  </div>
+
+  <div id="modal" class="modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-titulo"></div>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="config.js"></script>
+  <script src="reportes.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
