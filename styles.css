@@ -60,3 +60,15 @@ h1{letter-spacing:-.02em}
 .cabecera h1{background:linear-gradient(90deg,var(--ink) 55%,var(--field));-webkit-background-clip:text;background-clip:text;color:transparent}
 @media (max-width:860px){.nav{border-bottom:1px solid var(--glass-borde)}#menu a{padding:.5rem .8rem}#menu a::before{left:22%;right:22%;top:auto;bottom:2px;width:auto;height:3px}#menu a:hover{transform:none}}
 @media (prefers-reduced-motion:reduce){#menu a,.btn,.ch-mes{transition:none}#menu a:hover,.btn:hover,.ch-mes:hover{transform:none}}
+
+/* ===== Fluidez de scroll · 2026-09-28 19:00 ARG ===== */
+/* El fondo con degradés va en una capa fija aparte: no se repinta al hacer scroll */
+body{background:var(--bg)}
+body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;transform:translateZ(0);background:radial-gradient(1100px 620px at 8% -8%,color-mix(in srgb,var(--field) 16%,transparent),transparent 62%),radial-gradient(900px 560px at 108% 12%,color-mix(in srgb,var(--verde) 13%,transparent),transparent 60%),radial-gradient(800px 500px at 50% 115%,color-mix(in srgb,var(--field) 9%,transparent),transparent 65%)}
+/* El desenfoque queda solo en el menú, ventanas y avisos; en paneles y tablas se reemplaza por un fondo casi opaco (se ve igual y no traba) */
+.panel,.saldos,.tabla-wrap,.ch-kpi,.cc-hero,.ch-mes,.login-card{-webkit-backdrop-filter:none;backdrop-filter:none;background:color-mix(in srgb,var(--surface) 88%,transparent)}
+th{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--surface-2)}
+.nav{transform:translateZ(0);will-change:transform}
+.tabla-wrap{-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
