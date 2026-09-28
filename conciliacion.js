@@ -1,4 +1,4 @@
-/* CDP Tesorería · Conciliación bancaria · Versión: 2026-09-28 16:00 ARG */
+/* CDP Tesorería · Conciliación bancaria · Versión: 2026-09-28 21:30 ARG */
 (function () {
   'use strict';
 
@@ -202,11 +202,11 @@
             <td class="num">${puede()
               ? `<input data-saldo="${f.m}" inputmode="decimal" value="${f.c ? fmtInput(f.c.saldo_banco) : ''}" placeholder="Cargar" aria-label="Saldo ${MESES[f.m - 1]}">`
               : (f.c ? C.money(f.c.saldo_banco) : '<span class="muted">-</span>')}
-              ${f.c && f.c.nota ? `<span class="cc-nota">${C.esc(f.c.nota)}</span>` : ''}</td>
+</td>
             <td class="num ${f.c ? (Math.abs(f.dif) < 0.5 ? 'cc-ok' : 'cc-mal') : ''}">${f.c ? C.money(f.dif) : ''}</td>
             <td>${!f.c ? '<span class="cc-nada">Sin cargar</span>' : Math.abs(f.dif) < 0.5 ? '<span class="cc-ok">✓ Conciliado</span>' : '<span class="cc-mal">No coincide</span>'}</td>
             <td class="num">${f.c && Math.abs(f.dif) >= 0.5 ? `<button class="btn texto" data-ver="${f.m}">${st.abierto === f.m ? 'Cerrar' : 'Buscar la diferencia'}</button>` : ''}
-              ${puede() && f.c ? `<button class="btn texto" data-nota="${f.m}">Nota</button>` : ''}</td>
+              ${f.c && f.c.nota ? `<button class="btn texto" data-vernota="${f.m}">Ver nota</button>` : (puede() && f.c ? `<button class="btn texto" data-nota="${f.m}">Agregar nota</button>` : '')}</td>
           </tr>
           ${st.abierto === f.m && f.c ? `<tr><td colspan="6">${ayudaHTML(cuenta, f)}</td></tr>` : ''}`).join('')}
         </tbody>
@@ -220,7 +220,20 @@
       inp.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); inp.blur(); } };
       inp.onchange = () => guardar(Number(inp.dataset.saldo), inp.value);
     });
-    $$('[data-nota]', C.vista).forEach((b) => b.onclick = () => nota(Number(b.dataset.nota)));
+    $('[data-nota]', C.vista).forEach((b) => b.onclick = () => nota(Number(b.dataset.nota)));
+    $('[data-vernota]', C.vista).forEach((b) => b.onclick = () => verNota(Number(b.dataset.vernota)));
+  }
+
+  function verNota(m) {
+    const cuenta = C.cuentas.find((c) => c.id === st.cuenta);
+    const c = concs.find((x) => x.cuenta_id === cuenta.id && x.periodo === finMes(st.anio, m));
+    if (!c) return;
+    const card = C.abrirModal(`<div class="modal-cab"><h2 id="modal-titulo">Nota de ${MESES[m - 1]}</h2><button type="button" class="cerrar" data-cerrar aria-label="Cerrar">×</button></div>
+      <p style="font-size:1.05rem;line-height:1.55;white-space:pre-wrap;margin:0 0 1rem">${C.esc(c.nota)}</p>
+      <p class="muted" style="font-size:.82rem;margin:0">${C.esc(cuenta.nombre)}, saldo del extracto al ${C.fecha(c.periodo)}: ${C.money(c.saldo_banco)}</p>
+      <div class="modal-pie"><div class="der">${puede() ? '<button type="button" class="btn" data-editar>Editar nota</button>' : ''}<button type="button" class="btn primario" data-ok>Cerrar</button></div></div>`);
+    $('[data-cerrar]', card).onclick = C.cerrarModal; $('[data-ok]', card).onclick = C.cerrarModal;
+    const be = $('[data-editar]', card); if (be) be.onclick = () => { C.cerrarModal(); nota(m); };
   }
 
   function ayudaHTML(cuenta, f) {
