@@ -1,4 +1,4 @@
-/* CDP Tesorería · Conciliación bancaria · Versión: 2026-09-28 15:00 ARG */
+/* CDP Tesorería · Conciliación bancaria · Versión: 2026-09-28 16:00 ARG */
 (function () {
   'use strict';
 
@@ -52,7 +52,7 @@
       .cc-hero>div{padding:1.2rem 1.35rem 1.3rem;border-right:1px solid var(--line);min-width:0}
       .cc-hero>div:last-child{border-right:0}
       .cc-hero span{display:block;font-size:.85rem;font-weight:650;color:var(--ink-2)}
-      .cc-hero strong{display:block;margin:.2rem 0 .3rem;font-size:clamp(1.4rem,2.6vw,2.2rem);font-weight:800;font-stretch:118%;letter-spacing:-.02em;white-space:nowrap}
+      .cc-hero strong{display:block;margin:.2rem 0 .3rem;font-size:clamp(1.1rem,1.55vw,1.5rem);font-weight:750;font-stretch:104%;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
       .cc-hero small{display:block;font-size:.8rem;color:var(--ink-2);line-height:1.35}
       .cc-hero .cc-banco{background:var(--field);color:var(--on-field)}
       .cc-hero .cc-banco span,.cc-hero .cc-banco small{color:inherit;opacity:.85}
