@@ -1,11 +1,11 @@
-/* CDP Tesorería · Conciliación bancaria · Versión: 2026-09-28 14:30 ARG */
+/* CDP Tesorería · Conciliación bancaria · Versión: 2026-09-28 15:00 ARG */
 (function () {
   'use strict';
 
   const MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
   let C = null;
   const st = { cuenta: null, anio: new Date().getFullYear(), abierto: null };
-  let movs = [], concs = [], cheques = [];
+  let movs = [], concs = [], cheques = [], nombres = new Map();
 
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
@@ -48,6 +48,25 @@
       .cc-resumen{display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1rem}
       .cc-resumen div{font-size:.9rem;color:var(--ink-2)}
       .cc-resumen strong{display:block;font-size:1.25rem;color:var(--ink);font-stretch:110%}
+      .cc-hero{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface);margin-bottom:1rem}
+      .cc-hero>div{padding:1.2rem 1.35rem 1.3rem;border-right:1px solid var(--line);min-width:0}
+      .cc-hero>div:last-child{border-right:0}
+      .cc-hero span{display:block;font-size:.85rem;font-weight:650;color:var(--ink-2)}
+      .cc-hero strong{display:block;margin:.2rem 0 .3rem;font-size:clamp(1.4rem,2.6vw,2.2rem);font-weight:800;font-stretch:118%;letter-spacing:-.02em;white-space:nowrap}
+      .cc-hero small{display:block;font-size:.8rem;color:var(--ink-2);line-height:1.35}
+      .cc-hero .cc-banco{background:var(--field);color:var(--on-field)}
+      .cc-hero .cc-banco span,.cc-hero .cc-banco small{color:inherit;opacity:.85}
+      .cc-hero .cc-est-ok{background:color-mix(in srgb,var(--in) 10%,var(--surface))}
+      .cc-hero .cc-est-ok strong{color:var(--in)}
+      .cc-hero .cc-est-mal{background:color-mix(in srgb,var(--out) 9%,var(--surface))}
+      .cc-hero .cc-est-mal strong{color:var(--out)}
+      .cc-hero .cc-sello{display:inline-block;margin-top:.35rem;padding:.15rem .55rem;border-radius:999px;font-size:.78rem;font-weight:700}
+      .cc-est-ok .cc-sello{background:var(--in);color:#fff}
+      .cc-est-mal .cc-sello{background:var(--out);color:#fff}
+      .cc-prog{display:flex;align-items:center;gap:.75rem;margin:-.25rem 0 1rem;font-size:.85rem;color:var(--ink-2)}
+      .cc-prog .pista{flex:1;max-width:320px;height:6px;border-radius:3px;background:var(--surface-2)}
+      .cc-prog .relleno{height:100%;border-radius:3px;background:var(--in)}
+      @media (max-width:860px){.cc-hero{grid-template-columns:1fr}.cc-hero>div{border-right:0;border-bottom:1px solid var(--line)}.cc-hero>div:last-child{border-bottom:0}}
     `;
     document.head.appendChild(s);
   }
@@ -67,6 +86,8 @@
     concs = c.data.map((x) => ({ ...x, saldo_banco: Number(x.saldo_banco) }));
     const ch = await C.sb.from('cheques').select('numero,fecha_pago,beneficiario,concepto,importe,estado,cuenta_id,fecha_cobro');
     cheques = ch.error ? [] : ch.data.map((x) => ({ ...x, importe: Number(x.importe) }));
+    const p = await C.sb.from('perfiles').select('id,nombre');
+    nombres = new Map((p.data || []).map((x) => [x.id, x.nombre]));
   }
 
   function saldoApp(cuenta, y, m) {
@@ -125,6 +146,24 @@
     const ok = cargados.filter((f) => Math.abs(f.dif) < 0.5).length;
     const ultimo = [...cargados].reverse()[0];
     const anios = []; for (let y = new Date().getFullYear(); y >= 2026; y--) anios.push(y);
+    const hoyD = new Date(), manana = new Date(hoyD.getFullYear(), hoyD.getMonth(), hoyD.getDate() + 1);
+    const saldoHoy = window.Rep.saldoAntesDe(cuenta, `${manana.getFullYear()}-${pad(manana.getMonth() + 1)}-${pad(manana.getDate())}`, movs);
+    const propios = movs.filter((x) => !x.anulado && (x.cuenta_id === cuenta.id || x.cuenta_destino_id === cuenta.id));
+    const ultMov = propios.length ? propios[propios.length - 1].fecha : null;
+    const todosC = concs.filter((x) => x.cuenta_id === cuenta.id).sort((a, b) => (a.periodo < b.periodo ? 1 : -1));
+    const ult = todosC[0] || null;
+    let difUlt = null, posteriores = [];
+    if (ult) {
+      const [yy, mm] = ult.periodo.split('-').map(Number);
+      difUlt = r2(ult.saldo_banco - saldoApp(cuenta, yy, mm));
+      posteriores = propios.filter((x) => x.fecha > ult.periodo);
+    }
+    const cuando = ult ? new Date(ult.updated_at || ult.created_at) : null;
+    const diasDesde = cuando ? Math.floor((hoyD - cuando) / 864e5) : null;
+    const quien = ult ? nombres.get(ult.updated_by || ult.created_by) : null;
+    const fh = (d) => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    const esBanco = cuenta.tipo !== 'efectivo';
+    const okUlt = ult && Math.abs(difUlt) < 0.5;
 
     C.vista.innerHTML = `
       <div class="cabecera">
@@ -134,11 +173,25 @@
         <label>Cuenta<select data-cuenta>${C.cuentas.filter((c) => c.activa && c.tipo !== 'inversion').map((c) => `<option value="${c.id}" ${c.id === st.cuenta ? 'selected' : ''}>${C.esc(c.nombre)}${c.numero ? ' (' + C.esc(c.numero) + ')' : ''}</option>`).join('')}</select></label>
         <label>Año<select data-anio>${anios.map((y) => `<option ${y === st.anio ? 'selected' : ''}>${y}</option>`).join('')}</select></label>
       </div>
-      <div class="cc-resumen">
-        <div>Meses conciliados<strong>${ok} de ${lista.length}</strong></div>
-        <div>Último extracto cargado<strong>${ultimo ? MESES[ultimo.m - 1] : '-'}</strong></div>
-        <div>Diferencia del último<strong class="${ultimo && Math.abs(ultimo.dif) >= 0.5 ? 'cc-mal' : 'cc-ok'}">${ultimo ? C.money(ultimo.dif) : '-'}</strong></div>
-      </div>
+      <section class="cc-hero" aria-label="Estado de la conciliación">
+        <div>
+          <span>Saldo en la app hoy</span>
+          <strong>${C.money(saldoHoy)}</strong>
+          <small>${ultMov ? 'Último movimiento cargado: ' + C.fecha(ultMov) : 'Sin movimientos'}</small>
+        </div>
+        <div class="cc-banco">
+          <span>${esBanco ? 'Saldo en el banco' : 'Saldo contado en caja'}</span>
+          <strong>${ult ? C.money(ult.saldo_banco) : 'Sin cargar'}</strong>
+          <small>${ult ? `Según ${esBanco ? 'extracto' : 'arqueo'} al ${C.fecha(ult.periodo)}<br>Actualizado el ${fh(cuando)}${quien ? ' por ' + C.esc(quien) : ''}` : `Cargá el saldo del ${esBanco ? 'extracto' : 'arqueo'} en la tabla de abajo`}</small>
+        </div>
+        <div class="${ult ? (okUlt ? 'cc-est-ok' : 'cc-est-mal') : ''}">
+          <span>${ult ? 'Diferencia al ' + C.fecha(ult.periodo) : 'Diferencia'}</span>
+          <strong>${ult ? C.money(difUlt) : '-'}</strong>
+          <small>${ult ? (diasDesde === 0 ? 'Actualizado hoy' : `Hace ${diasDesde} día${diasDesde === 1 ? '' : 's'} de la última actualización`) : 'Todavía no hay conciliaciones'}${ult && posteriores.length ? `<br>Después del extracto se cargaron ${posteriores.length} movimientos` : ''}</small>
+          ${ult ? `<span class="cc-sello">${okUlt ? '✓ Conciliado' : 'No coincide'}</span>` : ''}
+        </div>
+      </section>
+      <div class="cc-prog"><span>${ok} de ${lista.length} meses conciliados</span><div class="pista"><div class="relleno" style="width:${lista.length ? (ok / lista.length * 100).toFixed(0) : 0}%"></div></div></div>
       ${cuenta.tipo === 'efectivo' ? '<p class="muted" style="margin-top:-.5rem">Para Efectivo, cargá lo que contaste en la caja (arqueo).</p>' : ''}
       <div class="tabla-wrap"><table class="cc-tabla">
         <thead><tr><th>Mes</th><th class="num">Saldo según la app</th><th class="num">Saldo según ${cuenta.tipo === 'efectivo' ? 'arqueo' : 'extracto'}</th><th class="num">Diferencia</th><th>Estado</th><th></th></tr></thead>
