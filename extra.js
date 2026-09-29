@@ -42,7 +42,7 @@
   el.setAttribute('aria-live', 'off');
   marca.insertAdjacentElement('afterend', el);
   const zona = 'America/Argentina/Buenos_Aires';
-  const fDia = new Intl.DateTimeFormat('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: zona });
+  const fDia = new Intl.DateTimeFormat('es-AR', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric', timeZone: zona });
   const fHora = new Intl.DateTimeFormat('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: zona });
   function pintar() {
     const d = new Date();
@@ -53,4 +53,30 @@
   }
   pintar();
   setTimeout(function () { pintar(); setInterval(pintar, 60000); }, (60 - new Date().getSeconds()) * 1000);
+})();
+
+/* ===== Opción de menú lateral o arriba · 2026-09-29 18:40 ARG ===== */
+(function () {
+  'use strict';
+  const raiz = document.documentElement;
+  let pos = 'lateral';
+  try { pos = localStorage.getItem('cdp-menu') === 'arriba' ? 'arriba' : 'lateral'; } catch (e) { }
+  const aplicar = (p) => {
+    pos = p;
+    if (p === 'arriba') raiz.dataset.menu = 'arriba'; else delete raiz.dataset.menu;
+    try { localStorage.setItem('cdp-menu', p); } catch (e) { }
+    document.querySelectorAll('[data-menu-opc]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.menuOpc === p)));
+  };
+  const pie = document.querySelector('.nav-pie');
+  if (pie && !document.querySelector('.menu-sel')) {
+    const sel = document.createElement('div');
+    sel.className = 'tema menu-sel';
+    sel.setAttribute('role', 'group');
+    sel.setAttribute('aria-label', 'Posición del menú');
+    sel.style.gridTemplateColumns = '1fr 1fr';
+    sel.innerHTML = '<button type="button" data-menu-opc="lateral" title="Menú al costado">Lateral</button><button type="button" data-menu-opc="arriba" title="Menú arriba">Arriba</button>';
+    pie.insertBefore(sel, pie.firstChild);
+    sel.querySelectorAll('button').forEach((b) => { b.onclick = () => aplicar(b.dataset.menuOpc); });
+  }
+  aplicar(pos);
 })();

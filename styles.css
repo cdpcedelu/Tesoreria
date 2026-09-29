@@ -78,3 +78,34 @@ html{scroll-behavior:smooth}
 .nav-reloj-hora{font-size:1.15rem;font-weight:750;font-stretch:112%;color:var(--field);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
 .nav-reloj-dia{font-size:.76rem;color:var(--ink-2);line-height:1.3}
 @media (max-width:860px){.nav-reloj{display:none}}
+
+/* ===== Menú: scroll, tipografía compacta y opción arriba · 2026-09-29 18:40 ARG ===== */
+.nav{gap:.9rem;padding-top:1rem;padding-bottom:1rem;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.nav-marca{padding-bottom:.75rem}
+.nav-marca img{width:52px}
+#menu{gap:2px}
+#menu a{font-size:.86rem;padding:.44rem .75rem .44rem .95rem;border-radius:10px}
+.nav-pie{gap:.55rem}
+.nav-usuario{padding-top:.6rem;font-size:.8rem}
+.nav-reloj{display:flex;align-items:baseline;gap:.45rem;white-space:nowrap;margin:-.35rem 0 -.1rem;padding:.4rem .65rem;border-radius:10px;overflow:hidden}
+.nav-reloj-hora{font-size:.88rem;font-weight:700;font-stretch:105%}
+.nav-reloj-dia{font-size:.74rem;overflow:hidden;text-overflow:ellipsis}
+.menu-sel button{font-size:.74rem}
+@media (min-width:861px){
+  :root[data-menu=arriba] .app{grid-template-columns:minmax(0,1fr)}
+  :root[data-menu=arriba] .nav{position:sticky;top:0;z-index:20;height:auto;flex-direction:row;align-items:center;gap:.75rem;padding:.45rem 1rem;overflow:visible;border-right:0;border-bottom:1px solid var(--glass-borde)}
+  :root[data-menu=arriba] .nav-marca{padding:0;border:0;flex:none}
+  :root[data-menu=arriba] .nav-marca img{width:42px}
+  :root[data-menu=arriba] .nav-marca div{display:none}
+  :root[data-menu=arriba] .nav-reloj{margin:0;flex:none}
+  :root[data-menu=arriba] #menu{display:flex;flex:1;min-width:0;overflow-x:auto;gap:2px;scrollbar-width:none}
+  :root[data-menu=arriba] #menu a{white-space:nowrap;padding:.42rem .7rem;font-size:.84rem}
+  :root[data-menu=arriba] #menu a::before{left:22%;right:22%;top:auto;bottom:2px;width:auto;height:3px}
+  :root[data-menu=arriba] #menu a:hover{transform:none}
+  :root[data-menu=arriba] .nav-pie{margin:0;display:flex;align-items:center;gap:.5rem;flex:none}
+  :root[data-menu=arriba] .nav-pie .tema{width:auto}
+  :root[data-menu=arriba] .nav-pie .tema button{padding:.3rem .5rem}
+  :root[data-menu=arriba] .nav-usuario{padding:0;border:0}
+  :root[data-menu=arriba] .nav-usuario div{display:none}
+}
+@media (max-width:860px){.menu-sel{display:none}}
