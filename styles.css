@@ -72,3 +72,9 @@ th{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--surface-2)
 .tabla-wrap{-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
 html{scroll-behavior:smooth}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* ===== Fecha y hora debajo del logo · 2026-09-29 18:10 ARG ===== */
+.nav-reloj{display:grid;gap:.1rem;margin:-.6rem 0 -.2rem;padding:.55rem .8rem;border-radius:12px;background:color-mix(in srgb,var(--field) 7%,transparent);border:1px solid color-mix(in srgb,var(--field) 14%,transparent)}
+.nav-reloj-hora{font-size:1.15rem;font-weight:750;font-stretch:112%;color:var(--field);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.nav-reloj-dia{font-size:.76rem;color:var(--ink-2);line-height:1.3}
+@media (max-width:860px){.nav-reloj{display:none}}
