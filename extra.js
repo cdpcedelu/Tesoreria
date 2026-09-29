@@ -113,7 +113,7 @@
   };
   const abrir = (v) => { pop.hidden = !v; btn.setAttribute('aria-expanded', String(v)); if (v) ubicar(); };
   btn.onclick = (e) => { e.stopPropagation(); abrir(pop.hidden); };
-  pop.addEventListener('click', (e) => { e.stopPropagation(); if (e.target.closest('[data-menu-opc]')) setTimeout(ubicar, 50); });
+  pop.addEventListener('click', (e) => { e.stopPropagation(); if (e.target.closest('[data-menu-opc], [data-tema]')) setTimeout(() => abrir(false), 120); });
   document.addEventListener('click', () => { if (!pop.hidden) abrir(false); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !pop.hidden) { abrir(false); btn.focus(); } });
   addEventListener('resize', () => { if (!pop.hidden) ubicar(); });
