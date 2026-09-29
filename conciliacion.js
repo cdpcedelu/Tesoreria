@@ -1,4 +1,4 @@
-/* CDP Tesorería · Conciliación bancaria · Versión: 2026-09-28 21:30 ARG */
+/* CDP Tesorería · Conciliación bancaria · Versión: 2026-09-28 22:00 ARG */
 (function () {
   'use strict';
 
@@ -220,8 +220,8 @@
       inp.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); inp.blur(); } };
       inp.onchange = () => guardar(Number(inp.dataset.saldo), inp.value);
     });
-    $('[data-nota]', C.vista).forEach((b) => b.onclick = () => nota(Number(b.dataset.nota)));
-    $('[data-vernota]', C.vista).forEach((b) => b.onclick = () => verNota(Number(b.dataset.vernota)));
+    $$('[data-nota]', C.vista).forEach((b) => b.onclick = () => nota(Number(b.dataset.nota)));
+    $$('[data-vernota]', C.vista).forEach((b) => b.onclick = () => verNota(Number(b.dataset.vernota)));
   }
 
   function verNota(m) {
