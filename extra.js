@@ -32,29 +32,6 @@
   });
 })();
 
-/* ===== Fecha y hora debajo del logo · 2026-09-29 18:10 ARG ===== */
-(function () {
-  'use strict';
-  const marca = document.querySelector('.nav-marca');
-  if (!marca || document.querySelector('.nav-reloj')) return;
-  const el = document.createElement('div');
-  el.className = 'nav-reloj';
-  el.setAttribute('aria-live', 'off');
-  marca.insertAdjacentElement('afterend', el);
-  const zona = 'America/Argentina/Buenos_Aires';
-  const fDia = new Intl.DateTimeFormat('es-AR', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric', timeZone: zona });
-  const fHora = new Intl.DateTimeFormat('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: zona });
-  function pintar() {
-    const d = new Date();
-    const dia = fDia.format(d);
-    el.innerHTML = '<span class="nav-reloj-hora"></span><span class="nav-reloj-dia"></span>';
-    el.firstChild.textContent = fHora.format(d) + ' hs';
-    el.lastChild.textContent = dia.charAt(0).toUpperCase() + dia.slice(1);
-  }
-  pintar();
-  setTimeout(function () { pintar(); setInterval(pintar, 60000); }, (60 - new Date().getSeconds()) * 1000);
-})();
-
 /* ===== Opción de menú lateral o arriba · 2026-09-29 18:40 ARG ===== */
 (function () {
   'use strict';
