@@ -18,7 +18,7 @@
     var email = u.indexOf('@') >= 0 ? u : (await sb.rpc('email_de_usuario', { p_usuario: u })).data;
     if (!email || /@cdpcdelu\.ar$/.test(email)) { aviso('Ese usuario no tiene un correo cargado. Pedile al administrador que te cambie la contraseña.'); return; }
     var r = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
-    if (r.error) { aviso('No se pudo enviar el correo: ' + r.error.message); return; }
+    if (r.error) { aviso('No se pudo enviar el correo: ' + (window.CDP_traducirError ? window.CDP_traducirError(r.error.message) : r.error.message)); return; }
     aviso('Te mandamos un correo a ' + email.replace(/^(.{2}).*(@.*)$/, '$1•••$2') + ' con un link para elegir una contraseña nueva.', true);
   });
   sb.auth.onAuthStateChange(async function (ev) {
@@ -117,4 +117,54 @@
   document.addEventListener('click', () => { if (!pop.hidden) abrir(false); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !pop.hidden) { abrir(false); btn.focus(); } });
   addEventListener('resize', () => { if (!pop.hidden) ubicar(); });
+})();
+
+/* ===== Mensajes de error en castellano · 2026-10-06 17:40 ARG ===== */
+(function () {
+  'use strict';
+  const UNICOS = {
+    centros_codigo_key: 'Ya existe un centro de costo con ese código. Usá otro código.',
+    cuentas_nombre_key: 'Ya existe una cuenta con ese nombre.',
+    categorias_codigo_key: 'Ya existe una categoría con ese código.',
+    cheques_cuenta_id_numero_key: 'Ese número de cheque ya está cargado en esa cuenta.',
+    recibos_numero_key: 'Ese número de recibo ya existe.',
+    cuotas_padron_periodo_categoria_id_tipo_key: 'Hay dos tipos de socio con el mismo nombre en ese mes.',
+    conciliaciones_cuenta_id_periodo_key: 'Ese mes ya tiene un saldo cargado para esa cuenta.',
+    perfiles_usuario_key: 'Ya existe un usuario con ese nombre.'
+  };
+  const REGLAS = [
+    [/duplicate key value violates unique constraint "([^"]+)"/i, (m) => UNICOS[m[1]] || 'Ya existe un registro con esos mismos datos.'],
+    [/violates foreign key constraint/i, () => 'No se puede hacer: hay otros datos (movimientos, cheques o recibos) que dependen de esto. Desactivalo en lugar de borrarlo.'],
+    [/chk_mov_transferencia/i, () => 'Una transferencia necesita cuenta de origen y de destino distintas, y no lleva categoría. Un ingreso o egreso necesita categoría.'],
+    [/chk_mov_anulado/i, () => 'Para anular hay que escribir el motivo.'],
+    [/chk_cheque_pendiente/i, () => 'Un cheque pendiente tiene que tener importe.'],
+    [/violates check constraint/i, () => 'Algún dato no es válido. Revisá importes, fechas y campos obligatorios.'],
+    [/null value in column "([^"]+)"/i, (m) => 'Falta completar un dato obligatorio (' + m[1].replace(/_id$/, '').replace(/_/g, ' ') + ').'],
+    [/invalid input syntax/i, () => 'Hay un dato con formato inválido (fecha, número o importe).'],
+    [/value too long/i, () => 'Algún texto es demasiado largo. Acortalo y probá de nuevo.'],
+    [/numeric field overflow/i, () => 'El importe es demasiado grande.'],
+    [/JWT expired|Invalid Refresh Token|refresh_token_not_found|session.*(missing|expired)/i, () => 'Tu sesión venció. Salí y volvé a ingresar.'],
+    [/rate limit|too many requests|over_email_send_rate_limit/i, () => 'Se hicieron demasiados intentos seguidos. Esperá unos minutos y probá de nuevo.'],
+    [/Password should|weak.?password|password.*(at least|characters)/i, () => 'La contraseña tiene que tener al menos 10 caracteres, con mayúscula, minúscula y número.'],
+    [/Invalid login credentials/i, () => 'Usuario o contraseña incorrectos.'],
+    [/Email not confirmed/i, () => 'El correo de ese usuario no está confirmado. Pedile al administrador que lo active.'],
+    [/User not found|user_not_found/i, () => 'No existe un usuario con esos datos.'],
+    [/Signups not allowed|signup.*disabled/i, () => 'El registro está cerrado. Los usuarios los crea el administrador.'],
+    [/payload too large|exceeded the maximum allowed size|entity too large/i, () => 'El archivo es demasiado grande (máximo 10 MB).'],
+    [/mime type .* is not supported|invalid_mime_type/i, () => 'Ese tipo de archivo no se acepta. Subí una foto (JPG, PNG) o un PDF.'],
+    [/does not exist/i, () => 'Falta actualizar algo en la base de datos. Avisale al administrador.'],
+    [/timeout|timed out|AbortError/i, () => 'El servidor tardó demasiado en responder. Probá de nuevo.'],
+    [/Failed to fetch|NetworkError|Load failed/i, () => 'Sin conexión con el servidor. Revisá internet y probá de nuevo.']
+  ];
+  const INGLES = /\b(the|is|are|was|not|does|cannot|can't|unable|failed|invalid|error|value|column|relation|function|violates|constraint|unexpected|unknown|denied|required|missing|exceeded)\b/i;
+  window.CDP_traducirError = function (msg) {
+    const t = String(msg || '');
+    for (const [re, fn] of REGLAS) { const m = t.match(re); if (m) return fn(m); }
+    const castellano = /[áéíóúñ¿¡]/i.test(t) || /\b(de|del|la|las|el|los|que|para|con|una?|es|hay|faltan?|ya|se|puede|tiene|solo)\b/i.test(t);
+    if (t && (INGLES.test(t) || !castellano) && !castellano) {
+      if (window.console) console.warn('Error original:', t);
+      return 'Ocurrió un error inesperado. Probá de nuevo y, si sigue, avisale al administrador.';
+    }
+    return t;
+  };
 })();
