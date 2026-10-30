@@ -1,4 +1,4 @@
-/* CDP Tesorería · Socios y cuotas · Versión: 2026-09-28 21:30 ARG */
+/* CDP Tesorería · Socios y cuotas · Versión: 2026-10-29 10:30 ARG */
 (function () {
   'use strict';
 
@@ -201,5 +201,7 @@
   window.CDP_Padron = { render, cargarReparto: async (sb) => {
     const p = await sb.from('cuotas_padron').select('categoria_id,periodo,cantidad,valor,social');
     if (!p.error && window.Rep && window.Rep.setReparto) window.Rep.setReparto(p.data);
+    const ce = await sb.from('centros').select('id,codigo').in('codigo', ['SC', 'GE', 'GG']);
+    if (!ce.error) { const x = ce.data.find((c) => c.codigo === 'SC') || ce.data.find((c) => c.codigo === 'GE') || ce.data.find((c) => c.codigo === 'GG'); window.CDP_CENTRO_SOCIAL = x ? x.id : null; }
   } };
 })();
